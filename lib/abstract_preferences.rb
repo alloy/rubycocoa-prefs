@@ -14,6 +14,26 @@ class Preferences
     def register_default_values!
       OSX::NSUserDefaults.standardUserDefaults.registerDefaults(default_values)
     end
+    
+    # Defines a namespace, which does nothing more than defining a class and a reader method
+    # for the namespace on the Preferences instance.
+    #
+    # Defines a class <tt>Preferences::Keyword</tt> and <tt>preferences.keyword</tt>:
+    #
+    #   class Preferences
+    #     namespace :keyword do
+    #       defaults_accessor :an_option, true
+    #     end
+    #   end
+    def namespace(name, &klass_definition)
+      klass_name = name.to_s.split('_').map { |x| x.capitalize }.join
+      namespace = eval("class ::Preferences::#{klass_name} < AbstractPreferencesSection; self end")
+      namespace.class_eval(&klass_definition)
+      define_method(name) do
+        namespace.instance
+      end
+      namespace
+    end
   end
   
   class AbstractPreferencesSection

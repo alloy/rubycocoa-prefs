@@ -2,10 +2,11 @@ require File.expand_path('../test_helper', __FILE__)
 require 'abstract_preferences'
 
 class Preferences
-  class TestDefaults < Preferences::AbstractPreferencesSection
+  namespace :test_defaults do
     defaults_accessor :an_option, true
     string_array_defaults_accessor :an_array, %w{ foo bar baz }, 'TestDefaultsStringWrapper'
   end
+  
   register_default_values!
 end
 
@@ -17,6 +18,11 @@ describe "Preferences" do
   
   it "should have defined a shortcut method on Kernel" do
     preferences.should.be Preferences.instance
+  end
+  
+  it "should have created a class for a namespace and added an accessor method for the namespace" do
+    Preferences::TestDefaults.superclass.should == Preferences::AbstractPreferencesSection
+    preferences.should.respond_to :test_defaults
   end
 end
 
