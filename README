@@ -1,0 +1,3 @@
+== RubyCocoa prefs
+
+A ruby abstraction for read/write access to the NSUserDefaults of a Cocoa application.
