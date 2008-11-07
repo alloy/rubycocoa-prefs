@@ -21,12 +21,12 @@ describe "Preferences" do
   end
   
   it "should have created a class for a namespace and added an accessor method for the namespace" do
-    Preferences::TestDefaults.superclass.should == Preferences::AbstractPreferencesSection
+    Preferences::TestDefaults.superclass.should == Preferences::AbstractPreferencesNamespace
     preferences.should.respond_to :test_defaults
   end
 end
 
-describe "Preferences::AbstractPreferencesSection" do
+describe "Preferences::AbstractPreferencesNamespace" do
   before do
     @prefs = Preferences::TestDefaults.instance
   end

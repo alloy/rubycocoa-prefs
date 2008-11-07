@@ -32,7 +32,7 @@ class Preferences
     #   end
     def namespace(name, &klass_definition)
       klass_name = name.to_s.split('_').map { |x| x.capitalize }.join
-      namespace = eval("class ::Preferences::#{klass_name} < AbstractPreferencesSection; self end")
+      namespace = eval("class ::Preferences::#{klass_name} < AbstractPreferencesNamespace; self end")
       namespace.class_eval(&klass_definition)
       define_method(name) do
         namespace.instance
@@ -41,7 +41,7 @@ class Preferences
     end
   end
   
-  class AbstractPreferencesSection
+  class AbstractPreferencesNamespace
     include Singleton
     
     class << self
@@ -53,7 +53,9 @@ class Preferences
       end
       
       # Defines a reader and writer method for a user defaults key for this section.
-      # If the preference is a boolean value, inflected from the default value, a query method is also defined,
+      #
+      # If the preference is a boolean value, inflected from the default value,
+      # a query method is also defined.
       #
       #   # Defines #confirm_quit, #confirm_quit=, and #confirm_quit? It's default value is <tt>true</tt>.
       #   defaults_accessor :confirm_quit, true
