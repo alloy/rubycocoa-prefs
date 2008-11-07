@@ -102,6 +102,26 @@ class Preferences
       end
     end
     
+    # Register an observer for a key.
+    #
+    # Include the <tt>Preferences::KVOCallbackHelper</tt> module in your class
+    # to get rubyish callback handling, instead of handling it yourself by defining
+    # the observeValueForKeyPath_ofObject_change_context method.
+    #
+    #   class PreferencesController < OSX::NSWindowController
+    #     include Preferences::KVOCallbackHelper
+    #
+    #     def init
+    #       if super_init
+    #         preferences.keyword.observe(:highlight_words, self)
+    #         self
+    #       end
+    #     end
+    #
+    #     def highlight_words_changed(new_value)
+    #       # Do stuff because a new value has been set.
+    #     end
+    #   end
     def observe(name, observer)
       key_path = "values.#{self.class.section_defaults_key}.#{name}"
       OSX::NSUserDefaultsController.sharedUserDefaultsController.
