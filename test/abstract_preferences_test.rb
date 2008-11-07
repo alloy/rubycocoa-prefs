@@ -24,6 +24,11 @@ describe "Preferences" do
     Preferences::TestDefaults.superclass.should == Preferences::AbstractPreferencesNamespace
     preferences.should.respond_to :test_defaults
   end
+  
+  it "should synchronize changes to disk" do
+    OSX::NSUserDefaults.standardUserDefaults.expects(:synchronize)
+    preferences.save
+  end
 end
 
 describe "Preferences::AbstractPreferencesNamespace" do

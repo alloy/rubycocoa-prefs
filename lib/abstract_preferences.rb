@@ -3,6 +3,11 @@ require 'singleton'
 class Preferences
   include Singleton
   
+  # Save any unsaved changes to disk.
+  def save
+    Preferences.user_defaults.synchronize
+  end
+  
   class << self
     # A shortcut method for access to <tt>OSX::NSUserDefaults.standardUserDefaults</tt>.
     def user_defaults
