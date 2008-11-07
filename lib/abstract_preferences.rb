@@ -25,32 +25,27 @@ class Preferences
     def register_default_values!
       user_defaults.registerDefaults(default_values)
     end
-    
-    # Defines a namespace, which does nothing more than defining a class and a reader method
-    # for the namespace on the Preferences instance.
-    #
-    # Defines a class <tt>Preferences::Keyword</tt> and <tt>preferences.keyword</tt>:
-    #
-    #   class Preferences
-    #     namespace :keyword do
-    #       defaults_accessor :an_option, true
-    #     end
-    #   end
-    def namespace(name, &klass_definition)
-      klass_name = name.to_s.split('_').map { |x| x.capitalize }.join
-      namespace = eval("class ::Preferences::#{klass_name} < AbstractPreferencesNamespace; self end")
-      namespace.class_eval(&klass_definition)
-      define_method(name) do
-        namespace.instance
-      end
-      namespace
-    end
   end
   
-  class AbstractPreferencesNamespace
+  class Namespace
     include Singleton
     
     class << self
+      # Defines a reader method for the Namespace subclass on the Preferences instance.
+      #
+      # Defines a class <tt>Preferences::Keyword</tt> and <tt>preferences.keyword</tt>:
+      #
+      #   class Preferences
+      #     class Keyword < Namespace
+      #       defaults_accessor :an_option, true
+      #     end
+      #   end
+      def inherited(klass)
+        super
+        method = klass.name.split('::').last.scan(/[A-Z][a-z]*/).map { |x| x.downcase }.join('_')
+        Preferences.class_eval "def #{method}; #{klass.name}.instance end"
+      end
+      
       # The key in the preferences that represents the section class.
       #
       #   Preferences::General.section_defaults_key # => "Preferences.General"

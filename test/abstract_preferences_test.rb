@@ -2,7 +2,7 @@ require File.expand_path('../test_helper', __FILE__)
 require 'abstract_preferences'
 
 class Preferences
-  namespace :test_defaults do
+  class TestDefaults < Namespace
     defaults_accessor :an_option, true
     string_array_defaults_accessor :an_array, %w{ foo bar baz }, 'TestDefaultsStringWrapper'
   end
@@ -21,7 +21,7 @@ describe "Preferences" do
   end
   
   it "should have created a class for a namespace and added an accessor method for the namespace" do
-    Preferences::TestDefaults.superclass.should == Preferences::AbstractPreferencesNamespace
+    Preferences::TestDefaults.superclass.should == Preferences::Namespace
     preferences.should.respond_to :test_defaults
   end
   

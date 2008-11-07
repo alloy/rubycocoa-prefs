@@ -14,7 +14,7 @@ bindings.
 See the LimeChat source for a real life example.
 
   class Preferences
-    namespace :keyword do
+    class Keyword < Namespace
       defaults_accessor :highlight_enabled, false
     end
     
