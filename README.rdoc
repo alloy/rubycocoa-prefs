@@ -1,11 +1,17 @@
 == RubyCocoa prefs
 
 A ruby abstraction for read/write access to the NSUserDefaults of a Cocoa application.
+Originally written for a rewrite of the LimeChat preferences code.
+
+LimeChat, the best irc client out there: http://github.com/psychs/limechat/tree/master
+My rewrite of the preferences: http://github.com/alloy/limechat/tree/refactor_preferences
 
 There is also a helper class which assists in making an array of strings accessible via
 bindings.
 
 === Example
+
+See the LimeChat source for a real life example.
 
   class Preferences
     namespace :keyword do
