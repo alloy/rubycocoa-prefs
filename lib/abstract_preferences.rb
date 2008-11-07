@@ -20,7 +20,8 @@ class Preferences
     end
     
     # Registers the default values with NSUserDefaults.standardUserDefaults
-    # Called at the end of evaluating model/preferences.rb
+    # Call this after all your Preferences code has been loaded, for instance
+    # in <tt>awakeFromNib</tt> of your ApplicationController.
     def register_default_values!
       user_defaults.registerDefaults(default_values)
     end

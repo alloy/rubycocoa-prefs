@@ -11,6 +11,9 @@ bindings.
     namespace :keyword do
       defaults_accessor :highlight_enabled, false
     end
+    
+    # Register the default values with NSUserDefaults.standardUserDefaults.
+    register_default_values!
   end
 
   # Elsewhere
