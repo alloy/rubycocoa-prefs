@@ -4,6 +4,11 @@ class Preferences
   include Singleton
   
   class << self
+    # A shortcut method for access to <tt>OSX::NSUserDefaults.standardUserDefaults</tt>.
+    def user_defaults
+      OSX::NSUserDefaults.standardUserDefaults
+    end
+    
     # A hash of all default values for the user defaults
     def default_values
       @default_values ||= {}
@@ -12,7 +17,7 @@ class Preferences
     # Registers the default values with NSUserDefaults.standardUserDefaults
     # Called at the end of evaluating model/preferences.rb
     def register_default_values!
-      OSX::NSUserDefaults.standardUserDefaults.registerDefaults(default_values)
+      user_defaults.registerDefaults(default_values)
     end
     
     # Defines a namespace, which does nothing more than defining a class and a reader method
@@ -58,11 +63,11 @@ class Preferences
         
         class_eval do
           define_method(name) do
-            OSX::NSUserDefaults.standardUserDefaults[key_path].to_ruby
+            Preferences.user_defaults[key_path].to_ruby
           end
           
           define_method("#{name}=") do |value|
-            OSX::NSUserDefaults.standardUserDefaults[key_path] = value
+            Preferences.user_defaults[key_path] = value
           end
           
           if default_value == true || default_value == false
@@ -109,11 +114,11 @@ class Preferences
       attr_accessor :key_path
       
       def array
-        OSX::NSUserDefaults.standardUserDefaults[key_path].to_ruby
+        Preferences.user_defaults[key_path].to_ruby
       end
       
       def array=(array)
-        OSX::NSUserDefaults.standardUserDefaults[key_path] = array
+        Preferences.user_defaults[key_path] = array
       end
       
       def destroy(klass, new_wrappers)
@@ -195,7 +200,7 @@ class Preferences
         def observeValueForKeyPath_ofObject_change_context(key_path, observed, change, context)
           value_key_path = key_path.sub(/^values\./, '')
           callback_method = "#{key_path.split('.').last}_changed"
-          send(callback_method, OSX::NSUserDefaults.standardUserDefaults[value_key_path].to_ruby)
+          send(callback_method, Preferences.user_defaults[value_key_path].to_ruby)
         end
       end
     end
