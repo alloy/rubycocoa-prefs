@@ -43,7 +43,7 @@ class Preferences
       def inherited(klass)
         super
         method = klass.name.split('::').last.scan(/[A-Z][a-z]*/).map { |x| x.downcase }.join('_')
-        Preferences.class_eval "def #{method}; #{klass.name}.instance end"
+        Preferences.class_eval "def #{method}; #{klass.name}.instance end", __FILE__, __LINE__
       end
       
       # The key in the preferences that represents the section class.
@@ -196,15 +196,50 @@ class Preferences
     end
   end
   
-  module StringArrayWrapperHelper
-    def string_array_kvc_wrapper_accessor(name, path_to_eval_to_object)
+  # Extend your class with this module to get access to a few KVC accessor helper methods.
+  module AccessorHelpers
+    # Defines a kvc_accessor which reads and writes
+    # to the specified preferences path (<tt>path_to_eval_to_object</tt>).
+    #
+    # This is useful for binding, for instance, UI elements
+    # to an array in the NSUserDefaults which is normally immutable.
+    #
+    #   class PreferencesController < OSX::NSWindowController
+    #     defaults_kvc_accessor :an_array_of_dictionaries, 'preferences.keyword.url_mappings'
+    #   end
+    #
+    # Binding a NSArrayController to File's Owner with key path: <tt>an_array_of_dictionaries</tt>,
+    # will perform the following read/write actions on the NSUserDefaults:
+    #
+    #   preferences_controller.valueForKey('an_array_of_dictionaries') # => [{'key' => 'value 1'}, {'key' => 'value 2'}]
+    #   preferences_controller.setValueForKey([{'key' => 'value 1'}], 'an_array_of_dictionaries')
+    #   preferences_controller.valueForKey('an_array_of_dictionaries') # => [{'key' => 'value 1'}]
+    def defaults_kvc_accessor(name, path_to_eval_to_object)
       kvc_accessor(name)
       
       class_eval %{
         def #{name}
-          @#{name} ||= #{path_to_eval_to_object}_wrapped
+          @#{name} ||= #{path_to_eval_to_object}
         end
         
+        def #{name}=(new_defaults)
+          #{path_to_eval_to_object} = @#{name} = new_defaults
+        end
+      }, __FILE__, __LINE__
+    end
+    
+    # Defines read and write KVC accessors like defaults_kvc_accessor does,
+    # but is used specifically for defaults defined with Namespace#string_array_defaults_accessor.
+    #
+    #   class PreferencesController < OSX::NSWindowController
+    #     defualts_string_array_kvc_accessor :an_array_of_strings, 'preferences.keyword.highlight_words'
+    #   end
+    #
+    # See Namespace#string_array_defaults_accessor for more info.
+    def defualts_string_array_kvc_accessor(name, path_to_eval_to_object)
+      defaults_kvc_accessor(name, "#{path_to_eval_to_object}_wrapped")
+      
+      class_eval %{
         def #{name}=(new_wrappers)
           if new_wrappers.length < #{name}.length
             Preferences::StringArrayWrapper.destroy(#{name}.first.class, new_wrappers)

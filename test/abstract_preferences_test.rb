@@ -4,7 +4,8 @@ require 'abstract_preferences'
 class Preferences
   class TestDefaults < Namespace
     defaults_accessor :an_option, true
-    string_array_defaults_accessor :an_array, %w{ foo bar baz }, 'TestDefaultsStringWrapper'
+    string_array_defaults_accessor :a_string_array, %w{ foo bar baz }, 'TestDefaultsStringWrapper'
+    defaults_accessor :an_array, %w{ foo bar baz }
   end
   
   register_default_values!
@@ -58,8 +59,8 @@ describe "Preferences::AbstractPreferencesNamespace" do
   end
   
   it "should return an array of wrapped strings for a string_array_defaults_accessor" do
-    assert @prefs.an_array_wrapped.all? { |x| x.is_a? TestDefaultsStringWrapper }
-    @prefs.an_array_wrapped.map { |x| x.valueForKey('string') }.should == %w{ foo bar baz }
+    assert @prefs.a_string_array_wrapped.all? { |x| x.is_a? TestDefaultsStringWrapper }
+    @prefs.a_string_array_wrapped.map { |x| x.valueForKey('string') }.should == %w{ foo bar baz }
   end
   
   it "should return the key path for the defaults_accessor" do
@@ -87,7 +88,7 @@ describe "A Preferences::StringArrayWrapper subclass" do
   end
   
   after do
-    @prefs.an_array = %w{ foo bar baz }
+    @prefs.a_string_array = %w{ foo bar baz }
   end
   
   it "should be a subclass of Preferences::StringArrayWrapper" do
@@ -95,62 +96,87 @@ describe "A Preferences::StringArrayWrapper subclass" do
   end
   
   it "should know it's key path" do
-    TestDefaultsStringWrapper.key_path.should == 'Preferences.TestDefaults.an_array'
+    TestDefaultsStringWrapper.key_path.should == 'Preferences.TestDefaults.a_string_array'
   end
   
   it "should update the string it wraps in the array at the configured key path" do
-    @prefs.an_array_wrapped.first.string = 'new_foo'
-    @prefs.an_array.should == %w{ new_foo bar baz }
+    @prefs.a_string_array_wrapped.first.string = 'new_foo'
+    @prefs.a_string_array.should == %w{ new_foo bar baz }
     
-    @prefs.an_array_wrapped.last.string = 'new_baz'
-    @prefs.an_array.should == %w{ new_foo bar new_baz }
+    @prefs.a_string_array_wrapped.last.string = 'new_baz'
+    @prefs.a_string_array.should == %w{ new_foo bar new_baz }
   end
   
   it "should add the string it wraps to the array at the configured key path if initialized without index, this happens when a NSArrayController initializes an instance" do
     wrapper = TestDefaultsStringWrapper.alloc.init
     wrapper.string = 'without index'
-    @prefs.an_array.last.should == 'without index'
+    @prefs.a_string_array.last.should == 'without index'
     wrapper.index.should == 3
   end
   
   it "should remove the strings the wrappers wrap from the array at the configured key path and reset the indices of the wrappers" do
-    wrapped = @prefs.an_array_wrapped
+    wrapped = @prefs.a_string_array_wrapped
     new_wrapped = [wrapped[1]]
     Preferences::StringArrayWrapper.destroy(TestDefaultsStringWrapper, new_wrapped)
-    @prefs.an_array.should == %w{ bar }
+    @prefs.a_string_array.should == %w{ bar }
     new_wrapped.first.index.should == 0
   end
 end
 
-class ClassThatExtendsWithStringArrayWrapperHelper < OSX::NSObject
-  extend Preferences::StringArrayWrapperHelper
+class ClassThatExtendsWithAccessorHelpers < OSX::NSObject
+  extend Preferences::AccessorHelpers
   
-  string_array_kvc_wrapper_accessor :a_kvc_array, 'Preferences::TestDefaults.instance.an_array'
+  defualts_string_array_kvc_accessor :a_kvc_string_array, 'Preferences::TestDefaults.instance.a_string_array'
 end
 
-describe "A class that extends with Preferences::StringArrayWrapperHelper" do
+describe "A class that extends with Preferences::AccessorHelpers and uses ::defualts_string_array_kvc_accessor" do
   before do
-    @instance = ClassThatExtendsWithStringArrayWrapperHelper.alloc.init
+    @instance = ClassThatExtendsWithAccessorHelpers.alloc.init
+  end
+  
+  after do
+    Preferences::TestDefaults.instance.a_string_array = %w{ foo bar baz }
+  end
+  
+  it "should define a defaults kvc reader accessor" do
+    @instance.valueForKey('a_kvc_string_array').map { |x| x.string }.should == %w{ foo bar baz }
+  end
+  
+  it "should remove wrappers from the preferences which are removed from the array given to the kvc setter" do
+    Preferences::TestDefaults.instance.a_string_array = %w{ foo bar baz bla boo }
+    
+    2.times do
+      wrappers = Preferences::TestDefaults.instance.a_string_array_wrapped
+      wrappers.delete_at(1)
+      @instance.a_kvc_string_array = wrappers
+    end
+    
+    @instance.a_kvc_string_array.map { |x| x.string }.should == %w{ foo bla boo }
+  end
+end
+
+class ClassThatExtendsWithAccessorHelpers < OSX::NSObject
+  extend Preferences::AccessorHelpers
+  
+  defaults_kvc_accessor :a_kvc_array, 'preferences.test_defaults.an_array'
+end
+
+describe "A class that extends with Preferences::AccessorHelpers and uses defaults_kvc_accessor" do
+  before do
+    @instance = ClassThatExtendsWithAccessorHelpers.alloc.init
   end
   
   after do
     Preferences::TestDefaults.instance.an_array = %w{ foo bar baz }
   end
   
-  it "should define a kvc_accessor" do
-    @instance.valueForKey('a_kvc_array').map { |x| x.string }.should == %w{ foo bar baz }
+  it "should define a defaults kvc reader accessor" do
+    @instance.valueForKey('a_kvc_array').should == %w{ foo bar baz }
   end
   
-  it "should remove wrappers from the preferences which are removed from the array given to the kvc setter" do
-    Preferences::TestDefaults.instance.an_array = %w{ foo bar baz bla boo }
-    
-    2.times do
-      wrappers = Preferences::TestDefaults.instance.an_array_wrapped
-      wrappers.delete_at(1)
-      @instance.a_kvc_array = wrappers
-    end
-    
-    @instance.a_kvc_array.map { |x| x.string }.should == %w{ foo bla boo }
+  it "should define a defaults kvc writer accessor" do
+    @instance.setValue_forKey(['bar'], 'a_kvc_array')
+    @instance.a_kvc_array.should == ['bar']
   end
 end
 
