@@ -155,8 +155,7 @@ class Preferences
       end
     end
     
-    kvc_accessor :string
-    attr_accessor :index
+    attr_accessor :string, :index
     
     def initWithString_index(string, index)
       if init
@@ -215,7 +214,7 @@ class Preferences
     #   preferences_controller.setValueForKey([{'key' => 'value 1'}], 'an_array_of_dictionaries')
     #   preferences_controller.valueForKey('an_array_of_dictionaries') # => [{'key' => 'value 1'}]
     def defaults_kvc_accessor(name, path_to_eval_to_object)
-      kvc_accessor(name)
+      attr_accessor(name)
       
       class_eval %{
         def #{name}
