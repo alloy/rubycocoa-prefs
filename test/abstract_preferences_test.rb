@@ -39,6 +39,11 @@ describe "Preferences::AbstractPreferencesNamespace" do
     @prefs = Preferences::TestDefaults.instance
   end
   
+  after do
+    NSUserDefaults.standardUserDefaults.reset!
+    Preferences.register_default_values!
+  end
+  
   it "should know the key in the prefs based on it's section class name" do
     Preferences::TestDefaults.section_defaults_key.should == 'Preferences.TestDefaults'
   end
@@ -177,7 +182,7 @@ describe "A class that extends with Preferences::AccessorHelpers and uses defaul
   end
   
   it "should define a defaults kvc writer accessor" do
-    @instance.setValue_forKey(['bar'], 'a_kvc_array')
+    @instance.setValue(['bar'], forKey: 'a_kvc_array')
     @instance.a_kvc_array.should == ['bar']
   end
 end
