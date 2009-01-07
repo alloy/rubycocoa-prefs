@@ -1,5 +1,5 @@
-require 'osx/cocoa'
+$: << "/Users/eloy/code/MacRuby/rucola/lib"
 
 require 'rubygems' rescue LoadError
-require 'test/spec'
+require 'rucola/test_spec'
 require 'mocha'
