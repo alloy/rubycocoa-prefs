@@ -129,7 +129,7 @@ end
 class ClassThatExtendsWithAccessorHelpers < NSObject
   extend Preferences::AccessorHelpers
   
-  defualts_string_array_kvc_accessor :a_kvc_string_array, 'Preferences::TestDefaults.instance.a_string_array'
+  defaults_string_array_kvc_accessor :a_kvc_string_array, 'Preferences::TestDefaults.instance.a_string_array'
 end
 
 describe "A class that extends with Preferences::AccessorHelpers and uses ::defualts_string_array_kvc_accessor" do

@@ -242,7 +242,7 @@ class Preferences
     #   end
     #
     # See Namespace#string_array_defaults_accessor for more info.
-    def defualts_string_array_kvc_accessor(name, path_to_eval_to_object)
+    def defaults_string_array_kvc_accessor(name, path_to_eval_to_object)
       defaults_kvc_accessor(name, "#{path_to_eval_to_object}_wrapped")
       
       class_eval %{
