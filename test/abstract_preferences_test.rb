@@ -6,6 +6,7 @@ require 'abstract_preferences'
 class Preferences
   class TestDefaults < Namespace
     defaults_accessor :an_option, true
+    defaults_accessor :another_option, true
     string_array_defaults_accessor :a_string_array, %w{ foo bar baz }, 'TestDefaultsStringWrapper'
     defaults_accessor :an_array, %w{ foo bar baz }
   end
@@ -39,11 +40,6 @@ describe "Preferences::AbstractPreferencesNamespace" do
     @prefs = Preferences::TestDefaults.instance
   end
   
-  after do
-    NSUserDefaults.standardUserDefaults.reset!
-    Preferences.register_default_values!
-  end
-  
   it "should know the key in the prefs based on it's section class name" do
     Preferences::TestDefaults.section_defaults_key.should == 'Preferences.TestDefaults'
   end
@@ -59,10 +55,10 @@ describe "Preferences::AbstractPreferencesNamespace" do
   end
   
   it "should create a query method for boolean preferences" do
-    @prefs.an_option = true
-    assert @prefs.an_option?
-    @prefs.an_option = false
-    assert !@prefs.an_option?
+    @prefs.another_option = true
+    assert @prefs.another_option?
+    @prefs.another_option = false
+    assert !@prefs.another_option?
   end
   
   it "should return an array of wrapped strings for a string_array_defaults_accessor" do
