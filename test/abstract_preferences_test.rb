@@ -29,7 +29,7 @@ describe "Preferences" do
   end
   
   it "should synchronize changes to disk" do
-    OSX::NSUserDefaults.standardUserDefaults.expects(:synchronize)
+    NSUserDefaults.standardUserDefaults.expects(:synchronize)
     preferences.save
   end
 end
@@ -72,11 +72,11 @@ describe "Preferences::AbstractPreferencesNamespace" do
   it "should register an observer for a key path" do
     observer_mock = mock('Object that observes a preference value')
     
-    shared_defaults = OSX::NSUserDefaultsController.sharedUserDefaultsController
+    shared_defaults = NSUserDefaultsController.sharedUserDefaultsController
     shared_defaults.expects(:addObserver_forKeyPath_options_context).with do |observer, key_path, options, context|
       observer == observer_mock &&
         key_path == 'values.Preferences.TestDefaults.an_option' &&
-        options == OSX::NSKeyValueObservingOptionNew &&
+        options == NSKeyValueObservingOptionNew &&
         context.nil?
     end
     
@@ -125,7 +125,7 @@ describe "A Preferences::StringArrayWrapper subclass" do
   end
 end
 
-class ClassThatExtendsWithAccessorHelpers < OSX::NSObject
+class ClassThatExtendsWithAccessorHelpers < NSObject
   extend Preferences::AccessorHelpers
   
   defualts_string_array_kvc_accessor :a_kvc_string_array, 'Preferences::TestDefaults.instance.a_string_array'
@@ -157,7 +157,7 @@ describe "A class that extends with Preferences::AccessorHelpers and uses ::defu
   end
 end
 
-class ClassThatExtendsWithAccessorHelpers < OSX::NSObject
+class ClassThatExtendsWithAccessorHelpers < NSObject
   extend Preferences::AccessorHelpers
   
   defaults_kvc_accessor :a_kvc_array, 'preferences.test_defaults.an_array'
