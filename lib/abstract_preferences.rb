@@ -132,7 +132,10 @@ class Preferences
     def observe(name, observer)
       key_path = "values.#{self.class.section_defaults_key}.#{name}"
       NSUserDefaultsController.sharedUserDefaultsController.
-        addObserver_forKeyPath_options_context(observer, key_path, NSKeyValueObservingOptionNew, nil)
+        addObserver observer,
+        forKeyPath: key_path,
+           options: NSKeyValueObservingOptionNew,
+           context: nil
     end
   end
   
@@ -256,9 +259,10 @@ class Preferences
   module KVOCallbackHelper
     # We need to actually define the method on the class because otherwise the method is not
     # resolved at runtime, probably a bug in RubyCocoa.
+    # TODO: check if this also applies in MacRuby.
     def self.included(klass)
       klass.class_eval do
-        def observeValueForKeyPath_ofObject_change_context(key_path, observed, change, context)
+        def observeValueForKeyPath(key_path, ofObject: observed, change: change, context: context)
           value_key_path = key_path.sub(/^values\./, '')
           callback_method = "#{key_path.split('.').last}_changed"
           send(callback_method, Preferences.user_defaults[value_key_path])

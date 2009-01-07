@@ -74,7 +74,7 @@ describe "Preferences::AbstractPreferencesNamespace" do
     observer_mock = mock('Object that observes a preference value')
     
     shared_defaults = NSUserDefaultsController.sharedUserDefaultsController
-    shared_defaults.expects(:addObserver_forKeyPath_options_context).with do |observer, key_path, options, context|
+    shared_defaults.expects('addObserver:forKeyPath:options:context:').with do |observer, key_path, options, context|
       observer == observer_mock &&
         key_path == 'values.Preferences.TestDefaults.an_option' &&
         options == NSKeyValueObservingOptionNew &&
@@ -195,10 +195,10 @@ describe "A class that includes Preferences::KVOCallbackHelper" do
   it "should call the method inflected from the key path with the new value of the preference" do
     Preferences::TestDefaults.instance.an_option = true
     @instance.expects(:an_option_changed).with(true)
-    @instance.observeValueForKeyPath_ofObject_change_context('values.Preferences.TestDefaults.an_option', nil, {}, nil)
+    @instance.observeValueForKeyPath('values.Preferences.TestDefaults.an_option', ofObject: nil, change: {}, context: nil)
     
     Preferences::TestDefaults.instance.an_option = false
     @instance.expects(:an_option_changed).with(false)
-    @instance.observeValueForKeyPath_ofObject_change_context('values.Preferences.TestDefaults.an_option', nil, {}, nil)
+    @instance.observeValueForKeyPath('values.Preferences.TestDefaults.an_option', ofObject: nil, change: {}, context: nil)
   end
 end
