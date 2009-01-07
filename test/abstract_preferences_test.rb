@@ -36,7 +36,7 @@ describe "Preferences" do
 end
 
 describe "Preferences::AbstractPreferencesNamespace" do
-  before do
+  def setup
     @prefs = Preferences::TestDefaults.instance
   end
   
@@ -86,11 +86,11 @@ describe "Preferences::AbstractPreferencesNamespace" do
 end
 
 describe "A Preferences::StringArrayWrapper subclass" do
-  before do
+  def setup
     @prefs = Preferences::TestDefaults.instance
   end
   
-  after do
+  def teardown
     @prefs.a_string_array = %w{ foo bar baz }
   end
   
@@ -133,11 +133,11 @@ class ClassThatExtendsWithAccessorHelpers < NSObject
 end
 
 describe "A class that extends with Preferences::AccessorHelpers and uses ::defualts_string_array_kvc_accessor" do
-  before do
+  def setup
     @instance = ClassThatExtendsWithAccessorHelpers.alloc.init
   end
   
-  after do
+  def teardown
     Preferences::TestDefaults.instance.a_string_array = %w{ foo bar baz }
   end
   
@@ -165,11 +165,11 @@ class ClassThatExtendsWithAccessorHelpers < NSObject
 end
 
 describe "A class that extends with Preferences::AccessorHelpers and uses defaults_kvc_accessor" do
-  before do
+  def setup
     @instance = ClassThatExtendsWithAccessorHelpers.alloc.init
   end
   
-  after do
+  def teardown
     Preferences::TestDefaults.instance.an_array = %w{ foo bar baz }
   end
   
@@ -188,7 +188,7 @@ class ClassThatIncludesKVOCallbackHelper
 end
 
 describe "A class that includes Preferences::KVOCallbackHelper" do
-  before do
+  def setup
     @instance = ClassThatIncludesKVOCallbackHelper.new
   end
   
