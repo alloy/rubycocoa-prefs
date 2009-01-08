@@ -70,7 +70,7 @@ class Preferences
         
         class_eval do
           define_method(name) do
-            Preferences.user_defaults[key_path]
+            Preferences.user_defaults[key_path].to_ruby
           end
           
           define_method("#{name}=") do |value|
@@ -144,7 +144,7 @@ class Preferences
       attr_accessor :key_path
       
       def array
-        Preferences.user_defaults[key_path]
+        Preferences.user_defaults[key_path].to_ruby
       end
       
       def array=(array)
@@ -183,6 +183,8 @@ class Preferences
       @string = string
       set_string!
     end
+    # FIXME: http://www.macruby.org/trac/ticket/201
+    alias_method :setString, :string=
     
     def set_string!
       if @index
@@ -231,6 +233,10 @@ class Preferences
         def #{name}=(new_defaults)
           #{path_to_eval_to_object} = @#{name} = new_defaults
         end
+        
+        # alias_method :setFoo, :foo=
+        # FIXME: http://www.macruby.org/trac/ticket/201
+        alias_method :set#{name[0,1].upcase}#{name[1..-1]}, :#{name}=
       }, __FILE__, __LINE__
     end
     
@@ -265,7 +271,7 @@ class Preferences
         def observeValueForKeyPath(key_path, ofObject: observed, change: change, context: context)
           value_key_path = key_path.sub(/^values\./, '')
           callback_method = "#{key_path.split('.').last}_changed"
-          send(callback_method, Preferences.user_defaults[value_key_path])
+          send(callback_method, Preferences.user_defaults[value_key_path].to_ruby)
         end
       end
     end
