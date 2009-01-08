@@ -70,7 +70,7 @@ class Preferences
         
         class_eval do
           define_method(name) do
-            Preferences.user_defaults[key_path].to_ruby
+            Preferences.user_defaults[key_path]
           end
           
           define_method("#{name}=") do |value|
@@ -144,7 +144,7 @@ class Preferences
       attr_accessor :key_path
       
       def array
-        Preferences.user_defaults[key_path].to_ruby
+        Preferences.user_defaults[key_path]
       end
       
       def array=(array)
@@ -271,7 +271,7 @@ class Preferences
         def observeValueForKeyPath(key_path, ofObject: observed, change: change, context: context)
           value_key_path = key_path.sub(/^values\./, '')
           callback_method = "#{key_path.split('.').last}_changed"
-          send(callback_method, Preferences.user_defaults[value_key_path].to_ruby)
+          send(callback_method, Preferences.user_defaults[value_key_path])
         end
       end
     end
