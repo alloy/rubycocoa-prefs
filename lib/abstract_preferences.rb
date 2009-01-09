@@ -98,13 +98,16 @@ class Preferences
       def string_array_defaults_accessor(name, default_value, wrapper_class_name)
         wrapper = eval("class ::#{wrapper_class_name} < StringArrayWrapper; self end")
         wrapper.key_path = defaults_accessor(name, default_value)
+        method = "#{name}_wrapped"
         
         class_eval do
-          define_method("#{name}_wrapped") do
+          define_method(method) do
             ary = []
             send(name).each_with_index { |string, index| ary << wrapper.alloc.initWithString_index(string, index) }
             ary
           end
+          
+          attr_writer method
         end
       end
     end

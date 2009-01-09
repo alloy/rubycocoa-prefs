@@ -66,6 +66,10 @@ describe "Preferences::AbstractPreferencesNamespace" do
     @prefs.a_string_array_wrapped.map { |x| x.valueForKey('string') }.should == %w{ foo bar baz }
   end
   
+  it "should have a setter method for a string_array_defaults_accessor" do
+    @prefs.should.respond_to :a_string_array_wrapped=
+  end
+  
   it "should return the key path for the defaults_accessor" do
     Preferences::TestDefaults.defaults_accessor(:an_accessor, '').should == 'Preferences.TestDefaults.an_accessor'
   end
