@@ -261,6 +261,10 @@ class Preferences
           end
           @#{name} = new_wrappers
         end
+        
+        # alias_method :setFoo, :foo=
+        # FIXME: http://www.macruby.org/trac/ticket/201
+        alias_method :set#{name[0,1].upcase}#{name[1..-1]}, :#{name}=
       }, __FILE__, __LINE__
     end
   end

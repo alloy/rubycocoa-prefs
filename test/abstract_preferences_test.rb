@@ -149,16 +149,18 @@ describe "A class that extends with Preferences::AccessorHelpers and uses ::defu
     @instance.valueForKey('a_kvc_string_array').map { |x| x.string }.should == %w{ foo bar baz }
   end
   
-  it "should remove wrappers from the preferences which are removed from the array given to the kvc setter" do
-    Preferences::TestDefaults.instance.a_string_array = %w{ foo bar baz bla boo }
-    
-    2.times do
-      wrappers = Preferences::TestDefaults.instance.a_string_array_wrapped
-      wrappers.delete_at(1)
-      @instance.a_kvc_string_array = wrappers
+  ['@instance.a_kvc_string_array = wrappers', '@instance.setValue(wrappers, forKey: "a_kvc_string_array")'].each do |setter|
+    it "should remove wrappers from the preferences which are removed from the array given to the kvc setter: #{setter}" do
+      Preferences::TestDefaults.instance.a_string_array = %w{ foo bar baz bla boo }
+      
+      2.times do
+        wrappers = Preferences::TestDefaults.instance.a_string_array_wrapped
+        wrappers.delete_at(1)
+        eval(setter)
+      end
+      
+      @instance.a_kvc_string_array.map { |x| x.string }.should == %w{ foo bla boo }
     end
-    
-    @instance.a_kvc_string_array.map { |x| x.string }.should == %w{ foo bla boo }
   end
 end
 
